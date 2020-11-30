@@ -10,4 +10,4 @@ api = Api(app)
 api.add_resource(EcommerceData,"/updateData")
 
 if __name__=="__main__":
-    app.run(debug=True)
+    app.run()
