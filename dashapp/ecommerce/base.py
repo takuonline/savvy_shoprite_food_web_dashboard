@@ -116,11 +116,11 @@ product_image_style = { "flex":"3 1 20%",
                     "padding":"2rem",
                     "marginTop":"1rem",
                     "marginRight":"1rem",
-                    "height":"60%"
+                    "height":"68%"
 }
 
 mini_div_bg_style = {"backgroundColor":secondary_color,
-                    "width":"5rem",
+                    "width":"6rem",
                     "height":"6rem",
                     "padding":"1rem 2rem",
                      "borderRadius":"4%",
@@ -213,12 +213,12 @@ layout = html.Div(
         ),
 
         html.Div( # top navbar header
-        html.H1("Shoprite Analysis",
+        html.H1(f"Shoprite Analysis ({len(set(combined_list))}products)",
                 style = {
                     "marginLeft":"21rem",
                     "padding":".5rem", 
                     "fontSize":"1.3rem",
-                        "margin-bottom": 0
+                    "margin-bottom": 0
                 }
                 
                
@@ -237,7 +237,8 @@ layout = html.Div(
                     
                         [
                             
-                        html.H1("Shoprite",className="side-navbar-text__header", style={"marginLeft":"1rem"}),
+                        html.H1("Shoprite",className="side-navbar-text__header", style={"marginLeft":"1rem",
+                                                                                         "margin-top":"3rem"}),
 
                         html.H3("Food Category",className="side-navbar-text__category",style={"marginLeft":"2rem"})
 
@@ -451,7 +452,7 @@ layout = html.Div(
                                 figure={
 
                                     "data":cheap_product_list,
-                                      "layout": go.Layout(title="Bar 1 plot",
+                                      "layout": go.Layout(title="Price decrease",
                                                         plot_bgcolor="rgba(0,0,0,0)",
                                                         paper_bgcolor="rgba(0,0,0,0)",
                                                         font={"color":"white",},
@@ -491,7 +492,7 @@ layout = html.Div(
                                     id = "mini-bar-2",
                                 figure={
                                     "data":expensive_product_list,
-                                      "layout": go.Layout(title="Bar 2 plot",
+                                      "layout": go.Layout(title="Price increase",
                                                         plot_bgcolor="rgba(0,0,0,0)",
                                                         paper_bgcolor="rgba(0,0,0,0)",
                                                         font={"color":"white",},
