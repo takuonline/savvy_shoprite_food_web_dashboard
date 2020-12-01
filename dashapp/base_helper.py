@@ -1,13 +1,16 @@
 import pandas as pd
 import pymongo
 import os
-# import requests
+from dashapp.ecommerce.models  import *
+# from wsgi import db
+import dashapp
 
 
 db_username = os.environ.get("USER")
 db_password = os.environ.get("PASSWORD")
  
 #process data into different classes
+
 cheap_products = []
 
 expensive_products = []
@@ -15,6 +18,8 @@ expensive_products = []
 no_change = []
 
 non_food_items = []
+
+
 # df = pd.read_csv("ecommerce_data.csv") # for testing  purposes 
 # print(db_username,db_password)
 
@@ -35,7 +40,32 @@ def clean_df(df):
     df["price"] = df["price"].apply(lambda x: float( (x.strip()).replace(",","").replace("R","") ) )
 
     # store df
-    df.to_csv("dashapp/ecommerce/data_files/clean_df.csv")
+    # df.to_csv("dashapp/ecommerce/data_files/clean_df.csv")
+
+    # df.to_sql(
+    #     name="clean_df",
+    #     if_exists='replace',
+    #     con=db
+
+    # )
+
+    # for i in range(len(data)):
+    
+    # print(data.iloc[i,0],
+    #       data.iloc[i,1],
+          
+          
+    #      )
+# title,_id,price,image_url,date)
+ 
+    db.session.add_all([CleanDf(df.index[i],
+                                # df.iloc[i,0],
+                                df.iloc[i,1],
+                                df.iloc[i,2],
+                                str(df.iloc[i,3]),
+                           
+                                ) for i in range(len(df)) ])
+
     return df
 
 def process_data(df):
@@ -47,6 +77,7 @@ def process_data(df):
     
         if(count<=10):
             non_food_items.append(item_name) 
+
         else:        
             if (last_figure < mean):
                 # cheap
@@ -57,31 +88,83 @@ def process_data(df):
                 #expensive
                 expensive_products.append(item_name)
         
+def clean_old_data():
+
+    db.session.query(NoChangeProducts).delete()
+    db.session.commit()
+
+    db.session.query(NonFoodProducts).delete()
+    db.session.commit()
+
+    db.session.query(CheapProducts).delete()
+    db.session.commit()
+
+    db.session.query(ExpensiveProducts).delete()
+    db.session.commit()
+
+    db.session.query(CleanDf).delete()
+    db.session.commit()
+
+
+
+
+
 def store_data():
   
-    # store classified data
-    with open("dashapp/ecommerce/data_files/cheap.txt","w") as f:
-        for i in cheap_products:
-            f.write(i+"\n")
+    # store classified data    
 
-    with open("dashapp/ecommerce/data_files/expensive.txt","w") as f:
-        for i in expensive_products:
-            f.write(i+"\n")
+    db.session.add_all( [ CheapProducts(i) for i in cheap_products])
+    db.session.commit()
 
-    with open("dashapp/ecommerce/data_files/non_food.txt","w") as f:
-        for i in non_food_items:
-            f.write(i+"\n")
+    db.session.add_all( [ ExpensiveProducts(i) for i in expensive_products])
+    db.session.commit()
+    
+    db.session.add_all( [ NoChangeProducts(i) for i in non_food_items])
+    db.session.commit()
+   
+    db.session.add_all( [ NonFoodProducts(i) for i in no_change])
+    db.session.commit()
 
-    with open("dashapp/ecommerce/data_files/no_change.txt","w") as f:
-        for i in no_change:
-            f.write(i+"\n")
+    print(NonFoodProducts.query.all())
+    print(CheapProducts.query.all())
+    print(NoChangeProducts.query.all())
+    # print((NoChangeProducts.query.all())))
+    print(type(NoChangeProducts.query.all()[0].name))
+
+    print(ExpensiveProducts.query.all())
+
+    print(CleanDf.query.all())
+
+
+
+
+    # with open("dashapp/ecommerce/data_files/cheap.txt","w") as f:
+    #     for i in cheap_products:
+    #         f.write(i+"\n")
+
+    # with open("dashapp/ecommerce/data_files/expensive.txt","w") as f:
+    #     for i in expensive_products:
+    #         f.write(i+"\n")
+
+    # with open("dashapp/ecommerce/data_files/non_food.txt","w") as f:
+    #     for i in non_food_items:
+    #         f.write(i+"\n")
+
+    # with open("dashapp/ecommerce/data_files/no_change.txt","w") as f:
+    #     for i in no_change:
+    #         f.write(i+"\n")
 
 
     
 
 def retrieve_and_clean_data():
+
+    db.create_all()
+
+    clean_old_data()
+
     df = load_from_db()
-    modified_df = clean_df(df)
+    modified_df = clean_df(df)    
     process_data(modified_df)
 
     store_data()

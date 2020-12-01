@@ -17,15 +17,21 @@
 }
 
 .side-navbar-text__header{
-
+    font-size: 1.5rem;
 }
 
 .side-navbar-text__category{
-
+font-size: 1rem;
 }
 .product-image{
 
 }
+
+.product-image__header{
+    margin-bottom: 1.3rem;
+    }
+
+    
 
 @media (max-width: 768px) {
     .side-navbar{
@@ -47,7 +53,7 @@
     }
 
     .product-image__header{
-margin-bottom: 2rem;
+    margin-bottom: 2rem;
     }
     
     .product-image__image{

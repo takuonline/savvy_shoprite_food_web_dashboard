@@ -1,36 +1,59 @@
 import pandas as pd
-import plotly.offline as pyo
 import plotly.graph_objects as go
 import dash
 import dash_html_components as html
 import dash_core_components as dcc
 from dash.dependencies import Input,Output,State
+from sqlalchemy import create_engine
+from dashapp.ecommerce.models import *
+import os
+
+
+
+# basedir = os.path.abspath(os.path.dirname(__file__))
+# app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///"+os.path.join(basedir,"data.sqlite")
+# cnx = create_engine('sqlite:///data.sqlite').connect() 
 
 # fetch cleaned df 
-df = pd.read_csv("dashapp/ecommerce/data_files/clean_df.csv")
+# df = pd.read_csv("dashapp/ecommerce/data_files/clean_df.csv")
+# df = pd.read_sql("clean_df",cnx)
+
+
+# title,id,price,image_url,date
+
+
+# for item in CleanDf.query.all():
+    
+# is very inefficient
+data_dict = {
+    "title":[i.title for i in CleanDf.query.all()],
+    "price":[i.price for i in CleanDf.query.all()],
+    "image_url":[i.image_url for i in CleanDf.query.all()],
+    "date":[i.date for i in CleanDf.query.all()]
+}
+
+df = pd.DataFrame(data_dict)
 df.set_index("title",inplace=True)
+df["date"] = pd.to_datetime(df["date"])
+df["price"] = df["price"].apply(lambda x: float(x) )
+   
+
+
 
 
 # fetch stored processed data
-cheap_products = []
+cheap_products = [i.name for i in CheapProducts.query.all()]
 
-expensive_products = []
+expensive_products = [i.name for i in  ExpensiveProducts.query.all()]
 
-no_change = []
+no_change = [i.name for i in  NoChangeProducts.query.all()]
 
-non_food_items = []
+non_food_items = [i.name for i in  NonFoodProducts.query.all()]
 
-with open("dashapp/ecommerce/data_files/cheap.txt","r") as f:
-    cheap_products = f.read().split("\n")[:-1]
 
-with open("dashapp/ecommerce/data_files/expensive.txt","r") as f:
-    expensive_products = f.read().split("\n")[:-1]
+    # print((NoChangeProducts.query.all())))
+    # printtype(NoChangeProducts.query.all()[0].name))
 
-with open("dashapp/ecommerce/data_files/non_food.txt","r") as f:
-    non_food_items = f.read().split("\n")[:-1]
-
-with open("dashapp/ecommerce/data_files/no_change.txt","r") as f:
-    no_change = f.read().split("\n")[:-1]
 
 
 dash_app = dash.Dash(__name__)
