@@ -3,7 +3,6 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Api
 from dashapp.ecommerce.api import EcommerceData
 import os
-
 def init_app():
 
     app = Flask(__name__,instance_relative_config = False)
@@ -15,19 +14,18 @@ def init_app():
 
     global db
     db = SQLAlchemy(app)
-
     
-
 
     # app.config.from_object("config.Config")
 
     with app.app_context():
         
         from dashapp import routes
-        
         from dashapp.ecommerce.dashboard import create_dashboard
         
         app = create_dashboard(app)
+
+        db.create_all()
 
         #setting up an api
         api = Api(app)

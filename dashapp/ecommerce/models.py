@@ -20,12 +20,14 @@ class CheapProducts(db.Model):
 
     id = db.Column(db.Integer,primary_key=True)
     name = db.Column(db.Text)
+    y_value = db.Column(db.Float)
 
-    def __init__(self,name):
+    def __init__(self,name,y_value):
         self.name = name
+        self.y_value = y_value
 
     def __repr__(self):
-        return f"{self.name}"
+        return f"{self.name},{self.y_value}"
 
 
 
@@ -35,9 +37,11 @@ class ExpensiveProducts(db.Model):
 
     id = db.Column(db.Integer,primary_key=True)
     name = db.Column(db.Text)
+    y_value = db.Column(db.Float)
 
-    def __init__(self,name):
+    def __init__(self,name,y_value):
         self.name = name
+        self.y_value = y_value
 
     def __repr__(self):
         return f"{self.name}"
@@ -92,3 +96,18 @@ class CleanDf(db.Model):
 
     def __repr__(self):
         return f"{self.title}, {self.image_url}, {self.date}, {self.price} \n"
+
+
+
+# class NonFoodProducts(db.Model):
+
+#     __tablename__ = "non_food_products"
+
+#     id = db.Column(db.Integer,primary_key=True)
+#     name = db.Column(db.Text)
+
+#     def __init__(self,name):
+#         self.name = name
+
+#     def __repr__(self):
+#         return f"{self.name}"

@@ -9,52 +9,55 @@ from dashapp.ecommerce.models import *
 import os
 
 
+basedir = os.path.abspath(os.path.dirname(__file__))
+path = "sqlite:///"+os.path.join(basedir,"../data.sqlite")
+cnx = create_engine(path).connect() 
 
-# basedir = os.path.abspath(os.path.dirname(__file__))
-# app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///"+os.path.join(basedir,"data.sqlite")
-# cnx = create_engine('sqlite:///data.sqlite').connect() 
+
+db.create_all()
 
 # fetch cleaned df 
 # df = pd.read_csv("dashapp/ecommerce/data_files/clean_df.csv")
-# df = pd.read_sql("clean_df",cnx)
-
-
-# title,id,price,image_url,date
-
-
-# for item in CleanDf.query.all():
-    
+df = pd.read_sql("clean_df",cnx)
+ 
 # is very inefficient
-data_dict = {
-    "title":[i.title for i in CleanDf.query.all()],
-    "price":[i.price for i in CleanDf.query.all()],
-    "image_url":[i.image_url for i in CleanDf.query.all()],
-    "date":[i.date for i in CleanDf.query.all()]
-}
+# data_dict = {
+#     "title":[i.title for i in CleanDf.query.all()],
+#     "price":[i.price for i in CleanDf.query.all()],
+#     "image_url":[i.image_url for i in CleanDf.query.all()],
+#     "date":[i.date for i in CleanDf.query.all()]
+# }
 
-df = pd.DataFrame(data_dict)
+# df = pd.DataFrame(data_dict)
+
+
 df.set_index("title",inplace=True)
 df["date"] = pd.to_datetime(df["date"])
 df["price"] = df["price"].apply(lambda x: float(x) )
    
 
-
-
-
 # fetch stored processed data
-cheap_products = [i.name for i in CheapProducts.query.all()]
+cheap_products = []
 
-expensive_products = [i.name for i in  ExpensiveProducts.query.all()]
+expensive_products = []
+
+y_expensive_values = []
+
+y_cheap_values = []
+
+
+for i in CheapProducts.query.all():
+    cheap_products.append(i.name)
+    y_cheap_values.append(i.y_value)
+
+for i in ExpensiveProducts.query.all():
+    expensive_products.append(i.name)
+    y_expensive_values.append(i.y_value)
+
 
 no_change = [i.name for i in  NoChangeProducts.query.all()]
 
 non_food_items = [i.name for i in  NonFoodProducts.query.all()]
-
-
-    # print((NoChangeProducts.query.all())))
-    # printtype(NoChangeProducts.query.all()[0].name))
-
-
 
 dash_app = dash.Dash(__name__)
 
@@ -131,19 +134,17 @@ mini_div_bg_style = {"backgroundColor":secondary_color,
 # process cheap products
 cheap_product_list = []
 
-y_cheap_values = []
 
- 
-for product_name in cheap_products:
+# for product_name in cheap_products:
     
-    min_value = df[df.index==product_name]["price"].min()
-    max_value = df[df.index==product_name]["price"].max()
-    current_price =  df[df.index==product_name]["price"][-1]
+#     min_value = df[df.index==product_name]["price"].min()
+#     max_value = df[df.index==product_name]["price"].max()
+#     current_price =  df[df.index==product_name]["price"][-1]
     
-    average_price = (min_value+max_value)/2
+#     average_price = (min_value+max_value)/2
     
-    y = (current_price-average_price)*100/average_price
-    y_cheap_values.append(y)
+#     y = (current_price-average_price)*100/average_price
+#     y_cheap_values.append(y)
     
 cheap_product_list.append(go.Bar(
                                  x=cheap_products,
@@ -154,20 +155,21 @@ cheap_product_list.append(go.Bar(
                             
 # process expensive products 
 expensive_product_list = []
-y_expensive_values = []
 
 
-for product_name in expensive_products:
+# for product_name in expensive_products:
 
-    min_value = df[df.index==product_name]["price"].min()
-    max_value = df[df.index==product_name]["price"].max()
-    current_price =  df[df.index==product_name]["price"][-1]
+#     min_value = df[df.index==product_name]["price"].min()
+#     max_value = df[df.index==product_name]["price"].max()
+#     current_price =  df[df.index==product_name]["price"][-1]
     
-    average_price = (min_value+max_value)/2
+#     average_price = (min_value+max_value)/2
     
-    y = (current_price-average_price)*100/average_price
-    y_expensive_values.append(y)
+#     y = (current_price-average_price)*100/average_price
+#     y_expensive_values.append(y)
     
+
+
 expensive_product_list.append(go.Bar(
                                  x=expensive_products,
                                  y=y_expensive_values,
@@ -177,30 +179,6 @@ expensive_product_list.append(go.Bar(
 # get a combined list of processed data
 combined_list = expensive_products + cheap_products + no_change
 
-# bubble_product_list = []
-# y_combined_values = []
-# for product_name in no_change:
-    
-#     min_value = df[df.index==product_name]["price"].min()
-#     max_value = df[df.index==product_name]["price"].max()
-#     current_price =  df[df.index==product_name]["price"][-1]
-    
-#     average_price = (min_value+max_value)/2
-    
-  
-#     y = (current_price-average_price)*100/average_price
-#     y_combined_values.append(y)
-
-# y_combined_values = y_combined_values + y_expensive_values + y_cheap_values
-    
-# bubble_product_list.append(go.Scatter(
-#                                  x= [df[df.index==name]["date"] for name in combined_list  ],
-#                                  y=  [df[df.index==name]["price"] for name in combined_list  ],
-#                                  text=combined_list,
-#                                 marker={
-#                                     "size":list(map(lambda x:x+100 ,y_combined_values)),
-#                                 }
-#                                 ))
 
 
 layout = html.Div(
@@ -213,7 +191,7 @@ layout = html.Div(
         ),
 
         html.Div( # top navbar header
-        html.H1(f"Shoprite Analysis ({len(set(combined_list))}products)",
+        html.H1(f"Shoprite Analysis ({len(set(combined_list))} products)",
                 style = {
                     "marginLeft":"21rem",
                     "padding":".5rem", 
@@ -240,14 +218,14 @@ layout = html.Div(
                         html.H1("Shoprite",className="side-navbar-text__header", style={"marginLeft":"1rem",
                                                                                          "margin-top":"3rem"}),
 
-                        html.H3("Food Category",className="side-navbar-text__category",style={"marginLeft":"2rem"})
+                        html.H3("Food Category",className="side-navbar-text__category",style={"marginLeft":"2rem"}),
+
+                        #  html.H3("Food Category",className="side-navbar-text__category",style={"marginLeft":"2rem"})
 
                         ],
                 className="side-navbar",
                 style=side_bar_style
                         ),
-
-
 
 
                 #main hero area
@@ -278,16 +256,13 @@ layout = html.Div(
                                 options=[{'label': i, 'value': i}  for i in combined_list],
                                 multi=True,
                                 value=df.index[0]
-                            )
+                                            )
                                 
                             ],style=dropdown_style
-                            
                             )
                             
                         ],style=graph_and_dropdown_style
                         ),
-                        
-                        
                         
                         #product image
                         html.Div(
@@ -473,8 +448,6 @@ layout = html.Div(
                             }),
                             
                             
-                            
-                            
                             html.Div([
                                 html.Div(# header
                                     html.P(f"Worst buys ({len(expensive_products)} products)",
@@ -503,7 +476,7 @@ layout = html.Div(
                                                         # },
                                                         yaxis={
                                                             "title": "Price increase in Percentage"
-                                                        }
+                                                                }
 
                                                         )
                                
@@ -517,9 +490,7 @@ layout = html.Div(
                                 "marginLeft":0
                             }),
                             
-                            
-                            
-                            
+                         
                             
                         ],style = {# best and worst rows
                             "display":"flex",
@@ -529,10 +500,30 @@ layout = html.Div(
                             "margin":"1rem",
                             "marginTop":0
                            
-                        }
+                                }
                         ),
-                        
-                        
+
+
+                        html.P("Made with ❤ by Takudzwa Makusha(tbmakusha@gmail.com)",style={
+                            "color":"white",
+                            "fontSize":"14px",
+                            "textAlign":"center",
+                            "marginLeft":"1rem",
+                            "display":"inline-block"
+
+
+                        }),
+
+                       html.A(" (Github_repo)",
+                           href="https://github.com/takuonline/shoprite_food",
+                           style={
+                               "color":"yellow",
+                               "textDecoration":"none",
+                               "alignSelf":"center",
+                               "fontSize":"14px",
+                               "marginLeft":"1rem"
+                           }
+                       )
                         
                         
                         # row 4 ############################################################################################
@@ -600,62 +591,6 @@ def select_product_graph(product_list):
                             
                             )
         }
-
-
-@dash_app.callback(Output("mini_divs_image","src"),
-             [Input("dropdown","value")])
-def select_product_image(product_list):
-    
-    if (len(product_list)>0 and len(df[df.index==product_list[-1]]["image_url"])>0 ):
-        url = df[df.index==product_list[-1]]["image_url"][0] 
-    else:
-        url=""
-    
-    return url
-
-
-
-@dash_app.callback(Output("mini_divs_min_price","children"),
-             [Input("dropdown","value")])
-def select_product_min_price(product_list):
-    
-    if (len(product_list)>0):
-        min_price = df[df.index==product_list[-1]]['price'].min()
-    else:
-        min_price=0  
-    
-
-    return f"R{min_price}"
-
-
-@dash_app.callback(Output("mini_divs_max_price","children"),
-             [Input("dropdown","value")])
-def select_product_max_price(product_list):
-    
-    if (len(product_list)>0):
-        max_price = df[df.index==product_list[-1]]['price'].max()
-    else:
-        max_price=0
-    
-
-    return f"R{max_price}"
-
-
-@dash_app.callback(Output("mini_divs_average_price","children"),
-             [Input("dropdown","value")])
-def select_product_average_price(product_list):
-    
-    if (len(product_list)>0):
-        max_price = df[df.index==product_list[-1]]['price'].max()
-        min_price = df[df.index==product_list[-1]]['price'].min()
-        av_price = round((max_price+min_price)/2,2)
-    else:
-        av_price="-"
-    
-
-    return f"R{av_price}"
-
-
 
 # if __name__=="__main__":
 #     dash_app.run_server(

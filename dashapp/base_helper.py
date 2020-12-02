@@ -4,7 +4,7 @@ import os
 from dashapp.ecommerce.models  import *
 # from wsgi import db
 import dashapp
-
+from sqlalchemy import create_engine
 
 db_username = os.environ.get("USER")
 db_password = os.environ.get("PASSWORD")
@@ -19,7 +19,9 @@ no_change = []
 
 non_food_items = []
 
+y_expensive_values = []
 
+y_cheap_values = []
 # df = pd.read_csv("ecommerce_data.csv") # for testing  purposes 
 # print(db_username,db_password)
 
@@ -42,51 +44,77 @@ def clean_df(df):
     # store df
     # df.to_csv("dashapp/ecommerce/data_files/clean_df.csv")
 
-    # df.to_sql(
-    #     name="clean_df",
-    #     if_exists='replace',
-    #     con=db
+    basedir = os.path.abspath(os.path.dirname(__file__))
+    path = "sqlite:///" + os.path.join(basedir,"data.sqlite")
+    cnx = create_engine(path).connect() 
 
-    # )
-
-    # for i in range(len(data)):
-    
-    # print(data.iloc[i,0],
-    #       data.iloc[i,1],
-          
-          
-    #      )
-# title,_id,price,image_url,date)
- 
-    db.session.add_all([CleanDf(df.index[i],
-                                # df.iloc[i,0],
-                                df.iloc[i,1],
-                                df.iloc[i,2],
-                                str(df.iloc[i,3]),
-                           
-                                ) for i in range(len(df)) ])
+    df.drop("_id",inplace=True,axis=1)
+    df.to_sql("clean_df",cnx,if_exists="replace")
 
     return df
 
 def process_data(df):
-    #classify data
+    #classify data into cheap, expensive , non food items and the no change classes
     for item_name in df.index.unique():
         count = df[df.index == item_name]["price"].count()
         mean = df[df.index == item_name]["price"].mean()
         last_figure = df[df.index == item_name]["price"][-1]
     
-        if(count<=10):
+    # 5 is an abitrary number, this number can be anything but it need to bew a low value until
+    # This part of the code can be removed only after all the non food items have been deleted from the mongodb database
+        if(count < 5):
             non_food_items.append(item_name) 
 
         else:        
             if (last_figure < mean):
                 # cheap
                 cheap_products.append(item_name)
-            elif (last_figure == mean):
+
+            elif (last_figure == mean) and count > 10:
+                #no change
                 no_change.append(item_name)
+
             else:
                 #expensive
                 expensive_products.append(item_name)
+
+
+def further_processing(df):
+    # computes the min , max , average price for each unique item
+    # these values are used for the y coordinate for the bar graph
+   
+
+  
+
+    for product_name in cheap_products:
+    
+        min_value = df[df.index==product_name]["price"].min()
+        max_value = df[df.index==product_name]["price"].max()
+        current_price =  df[df.index==product_name]["price"][-1]
+        
+        average_price = (min_value+max_value)/2
+        
+        y = (current_price-average_price)*100/average_price
+
+        y_cheap_values.append(y)
+
+
+
+    for product_name in expensive_products:
+
+        min_value = df[df.index==product_name]["price"].min()
+        max_value = df[df.index==product_name]["price"].max()
+        current_price =  df[df.index==product_name]["price"][-1]
+        
+        average_price = (min_value+max_value)/2
+        
+        y = (current_price-average_price)*100/average_price
+        y_expensive_values.append(y)
+
+
+
+
+
         
 def clean_old_data():
 
@@ -113,10 +141,10 @@ def store_data():
   
     # store classified data    
 
-    db.session.add_all( [ CheapProducts(i) for i in cheap_products])
+    db.session.add_all( [ CheapProducts(i,j) for i,j in zip(cheap_products,y_cheap_values)])
     db.session.commit()
 
-    db.session.add_all( [ ExpensiveProducts(i) for i in expensive_products])
+    db.session.add_all( [ ExpensiveProducts(i,j) for i,j in zip(expensive_products,y_expensive_values)])
     db.session.commit()
     
     db.session.add_all( [ NoChangeProducts(i) for i in non_food_items])
@@ -125,37 +153,16 @@ def store_data():
     db.session.add_all( [ NonFoodProducts(i) for i in no_change])
     db.session.commit()
 
-    print(NonFoodProducts.query.all())
-    print(CheapProducts.query.all())
-    print(NoChangeProducts.query.all())
-    # print((NoChangeProducts.query.all())))
-    print(type(NoChangeProducts.query.all()[0].name))
+    # print(NonFoodProducts.query.all())
+    # print(CheapProducts.query.all())
+    # print(NoChangeProducts.query.all())
+    # # print((NoChangeProducts.query.all())))
+    # print(type(NoChangeProducts.query.all()[0].name))
 
-    print(ExpensiveProducts.query.all())
+    # print(ExpensiveProducts.query.all())
 
-    print(CleanDf.query.all())
+    # print(CleanDf.query.all())
 
-
-
-
-    # with open("dashapp/ecommerce/data_files/cheap.txt","w") as f:
-    #     for i in cheap_products:
-    #         f.write(i+"\n")
-
-    # with open("dashapp/ecommerce/data_files/expensive.txt","w") as f:
-    #     for i in expensive_products:
-    #         f.write(i+"\n")
-
-    # with open("dashapp/ecommerce/data_files/non_food.txt","w") as f:
-    #     for i in non_food_items:
-    #         f.write(i+"\n")
-
-    # with open("dashapp/ecommerce/data_files/no_change.txt","w") as f:
-    #     for i in no_change:
-    #         f.write(i+"\n")
-
-
-    
 
 def retrieve_and_clean_data():
 
@@ -165,7 +172,10 @@ def retrieve_and_clean_data():
 
     df = load_from_db()
     modified_df = clean_df(df)    
+
     process_data(modified_df)
+
+    further_processing(modified_df)
 
     store_data()
 

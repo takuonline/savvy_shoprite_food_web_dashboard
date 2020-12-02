@@ -15,6 +15,9 @@
     margin: 5rem; */
 
 }
+body{
+    margin: 0;
+ }
 
 .side-navbar-text__header{
     font-size: 1.5rem;
