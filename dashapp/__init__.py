@@ -1,7 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Api
-from dashapp.ecommerce.api import EcommerceData
 import os
 def init_app():
 
@@ -22,14 +21,16 @@ def init_app():
         
         from dashapp import routes
         from dashapp.ecommerce.dashboard import create_dashboard
-        
+        from dashapp.ecommerce.api import EcommerceData
+
         app = create_dashboard(app)
 
         db.create_all()
 
         #setting up an api
         api = Api(app)
-        api.add_resource(EcommerceData,"/updateData")
+        api.add_resource(EcommerceData,"/update-data")
+        # api.add_resource(PcComponents,"/pcData")
 
  
         return app

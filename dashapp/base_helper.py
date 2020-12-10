@@ -8,7 +8,6 @@ from sqlalchemy import create_engine
 
 db_username = os.environ.get("USER")
 db_password = os.environ.get("PASSWORD")
- 
 #process data into different classes
 
 cheap_products = []
@@ -59,24 +58,34 @@ def process_data(df):
         count = df[df.index == item_name]["price"].count()
         mean = df[df.index == item_name]["price"].mean()
         last_figure = df[df.index == item_name]["price"][-1]
-    
-    # 5 is an abitrary number, this number can be anything but it need to bew a low value until
+        try:
+            second_from_last_figure = df[df.index == item_name]["price"][-2]
+        except IndexError:
+            second_from_last_figure=last_figure
+
+            
+        
+    # 7 is an abitrary number, this number can be anything but it need to bew a low value until
     # This part of the code can be removed only after all the non food items have been deleted from the mongodb database
-        if(count < 5):
+        if(count < 7):
             non_food_items.append(item_name) 
 
         else:        
-            if (last_figure < mean):
+            if (last_figure < second_from_last_figure):
                 # cheap
                 cheap_products.append(item_name)
 
-            elif (last_figure == mean) and count > 10:
+            elif (last_figure == second_from_last_figure):
                 #no change
                 no_change.append(item_name)
 
-            else:
+            elif (last_figure > second_from_last_figure):
                 #expensive
                 expensive_products.append(item_name)
+
+            else:
+                #non food item
+                non_food_items.append(item_name)
 
 
 def further_processing(df):

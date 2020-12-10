@@ -1,3 +1,4 @@
+waitress==1.4.4
 Flask-RESTful==0.3.8
 Flask-SQLAlchemy==2.4.4
 aniso8601==8.0.0
@@ -79,7 +80,6 @@ PySocks==1.7.1
 python-dateutil==2.8.1
 python-dotenv==0.15.0
 pytz==2020.4
-pywinpty==0.5.7
 pyzmq==19.0.2
 requests==2.24.0
 retrying==1.3.3
