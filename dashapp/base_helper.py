@@ -58,10 +58,10 @@ def process_data(df):
         count = df[df.index == item_name]["price"].count()
         mean = df[df.index == item_name]["price"].mean()
         last_figure = df[df.index == item_name]["price"][-1]
-        try:
-            second_from_last_figure = df[df.index == item_name]["price"][-2]
-        except IndexError:
-            second_from_last_figure=last_figure
+        # try:
+        #     second_from_last_figure = df[df.index == item_name]["price"][-2]
+        # except IndexError:
+        #     second_from_last_figure=last_figure
 
             
         
@@ -69,17 +69,16 @@ def process_data(df):
     # This part of the code can be removed only after all the non food items have been deleted from the mongodb database
         if(count < 7):
             non_food_items.append(item_name) 
-
         else:        
-            if (last_figure < second_from_last_figure):
+            if (last_figure < mean):
                 # cheap
                 cheap_products.append(item_name)
 
-            elif (last_figure == second_from_last_figure):
+            elif (last_figure == mean):
                 #no change
                 no_change.append(item_name)
 
-            elif (last_figure > second_from_last_figure):
+            elif (last_figure > mean):
                 #expensive
                 expensive_products.append(item_name)
 
@@ -97,12 +96,15 @@ def further_processing(df):
 
     for product_name in cheap_products:
     
-        min_value = df[df.index==product_name]["price"].min()
-        max_value = df[df.index==product_name]["price"].max()
+        # min_value = df[df.index==product_name]["price"].min()
+        # max_value = df[df.index==product_name]["price"].max()
+
         current_price =  df[df.index==product_name]["price"][-1]
+        # previous_price = df[df.index==product_name]["price"][-2]
         
-        average_price = (min_value+max_value)/2
-        
+        # average_price = (min_value+max_value)/2
+        average_price = df[df.index==product_name]["price"].mean()
+
         y = (current_price-average_price)*100/average_price
 
         y_cheap_values.append(y)
@@ -111,13 +113,17 @@ def further_processing(df):
 
     for product_name in expensive_products:
 
-        min_value = df[df.index==product_name]["price"].min()
-        max_value = df[df.index==product_name]["price"].max()
+        # min_value = df[df.index==product_name]["price"].min()
+        # max_value = df[df.index==product_name]["price"].max()
         current_price =  df[df.index==product_name]["price"][-1]
+        # previous_price = df[df.index==product_name]["price"][-2]
         
-        average_price = (min_value+max_value)/2
+        # average_price = (min_value+max_value)/2
+        average_price = df[df.index==product_name]["price"].mean()
         
+        # y = (current_price-average_price)*100/average_price
         y = (current_price-average_price)*100/average_price
+
         y_expensive_values.append(y)
 
 
