@@ -92,23 +92,33 @@ def further_processing(df):
     # these values are used for the y coordinate for the bar graph
    
 
-  
-
     for product_name in cheap_products:
     
         # min_value = df[df.index==product_name]["price"].min()
         # max_value = df[df.index==product_name]["price"].max()
 
-        current_price =  df[df.index==product_name]["price"][-1]
-        # previous_price = df[df.index==product_name]["price"][-2]
-        
-        # average_price = (min_value+max_value)/2
+        current_price = df[df.index==product_name]["price"][-1]
+
+        # if (type(current_price) != float ):
+        #     current_price = df[df.index==product_name]["price"][-2]
+
+        #     if (type(current_price) != float ):
+        #         current_price = df[df.index==product_name]["price"][-3]
+
+        #         if (type(current_price) != float ):
+        #             current_price = df[df.index==product_name]["price"].mean()
+                    
         average_price = df[df.index==product_name]["price"].mean()
 
         y = (current_price-average_price)*100/average_price
 
-        y_cheap_values.append(y)
+        print("\n\n\n\n")
+        print(y)
+        print(current_price)
+        print(average_price)
+        print("\n\n\n\n")
 
+        y_cheap_values.append(y)
 
 
     for product_name in expensive_products:
@@ -116,13 +126,29 @@ def further_processing(df):
         # min_value = df[df.index==product_name]["price"].min()
         # max_value = df[df.index==product_name]["price"].max()
         current_price =  df[df.index==product_name]["price"][-1]
+
+        # if (type(current_price) != float ):
+        #     current_price = df[df.index==product_name]["price"][-2]
+
+        #     if (type(current_price) != float ):
+        #         current_price = df[df.index==product_name]["price"][-3]
+
+        #         if (type(current_price) != float ):
+        #             current_price = df[df.index==product_name]["price"].mean()
+
+
         # previous_price = df[df.index==product_name]["price"][-2]
-        
-        # average_price = (min_value+max_value)/2
+      
         average_price = df[df.index==product_name]["price"].mean()
         
         # y = (current_price-average_price)*100/average_price
         y = (current_price-average_price)*100/average_price
+
+        print("\n\n\n\n")
+        print(y)
+        print(current_price)
+        print(average_price)
+        print("\n\n\n\n")
 
         y_expensive_values.append(y)
 
@@ -183,9 +209,10 @@ def retrieve_and_clean_data():
 
     db.create_all()
 
+    df = load_from_db()
+
     clean_old_data()
 
-    df = load_from_db()
     modified_df = clean_df(df)    
 
     process_data(modified_df)

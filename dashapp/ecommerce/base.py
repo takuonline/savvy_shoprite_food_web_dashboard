@@ -203,8 +203,7 @@ layout = html.Div(
                ),  style = {
                     "backgroundColor":"rgba(0,0,0,.5)",
                 }
-            
-            
+              
         ),
         
         
@@ -227,12 +226,11 @@ layout = html.Div(
                 style=side_bar_style
                         ),
 
-
                 #main hero area
                 html.Div(
                     [
                         
-                    # row 1   ####################################################    
+                    # row 1   ##############################################################################################    
                         html.Div([ # main hero area row 1 (graph + dropdown + productlist) 
                             
                            
@@ -303,7 +301,7 @@ layout = html.Div(
                         ],style= main_hero_style_row1),
                         
                         
-                        # row 2 ##############################################
+                        # row 2 ############################################################################################
                 html.Div([ # main hero area row 2 (3 min divs) 
                             
                         
@@ -333,13 +331,7 @@ layout = html.Div(
                                 style=mini_div_bg_style
                             ),
                             
-                            
-                            
-                            
-                            
-                            
-                            
-                            
+                           
                              html.Div(# mini price div bg
                                 [
                                     html.H3("Maximum Price",style={"color":"#911145",
@@ -565,32 +557,6 @@ layout = html.Div(
 )
 
 
-@dash_app.callback(Output("main_graph","figure"),
-             [Input("dropdown","value")])
-def select_product_graph(product_list):
-    
-    if len(product_list)==1:
-        product_title = product_list[0]
-    else:
-        product_title = ""
-        
-    return {
-        "data": [  go.Scatter(x=df[df.index==product_name]["date"],
-                              y=df[df.index==product_name]["price"],
-#                               fillcolor="rgba(255,0,0,.3)",
-                              name=product_name,
-                          
-                             ) for product_name in product_list  ],
-        
-        "layout": go.Layout(title=product_title,
-                            plot_bgcolor="rgba(0,0,0,0)",
-                            paper_bgcolor="rgba(0,0,0,.3)",
-                            font={"color":"white",},
-                            grid={"columns":1,},
-                            hovermode="closest"
-                            
-                            )
-        }
 
 # if __name__=="__main__":
 #     dash_app.run_server(

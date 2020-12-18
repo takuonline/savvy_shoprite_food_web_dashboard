@@ -28,14 +28,25 @@ def create_callbacks(dash_app):
             product_title = product_list[0]
         else:
             product_title = ""
-            
-        return {
-            "data": [  go.Scatter(x=df[df.index==product_name]["date"],
+
+        data_graph = [  go.Scatter(x=df[df.index==product_name]["date"],
                                 y=df[df.index==product_name]["price"],
     #                               fillcolor="rgba(255,0,0,.3)",
                                 name=product_name,
+                                mode="lines"
                             
-                                ) for product_name in product_list  ],
+                                ) for product_name in product_list  ]
+
+    #     mean_graph = [  go.Scatter(x=df[df.index==product_name]["date"],
+    #                             y=df[df.index==product_name]["price"].mean(),
+    # #                               fillcolor="rgba(255,0,0,.3)",
+    #                             name=product_name,
+    #                             mode="lines"
+                            
+    #                             ) for product_name in product_list  ]
+            
+        return {
+            "data":  data_graph   ,
             
             "layout": go.Layout(title=product_title,
                                 plot_bgcolor="rgba(0,0,0,0)",
@@ -92,12 +103,12 @@ def create_callbacks(dash_app):
     def select_product_average_price(product_list):
         
         if (len(product_list)>0):
-            max_price = df[df.index==product_list[-1]]['price'].max()
-            min_price = df[df.index==product_list[-1]]['price'].min()
-            av_price = round((max_price+min_price)/2,2)
+            # max_price = df[df.index==product_list[-1]]['price'].max()
+            # min_price = df[df.index==product_list[-1]]['price'].min()
+            # av_price = round((max_price+min_price)/2,2)
+            av_price = round(df[df.index==product_list[-1]]['price'].mean(),2)
         else:
             av_price="-"
-        
 
         return f"R{av_price}"
 

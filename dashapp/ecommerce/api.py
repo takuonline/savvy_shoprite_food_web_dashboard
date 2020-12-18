@@ -4,6 +4,7 @@ from datetime import datetime
 class EcommerceData(Resource):
 
     def get(self):
+     
         start_time = datetime.now()
 
         from dashapp.base_helper import retrieve_and_clean_data
