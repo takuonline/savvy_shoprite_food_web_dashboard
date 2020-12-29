@@ -31,14 +31,18 @@ def load_from_db():
     db = client["ecommerce"]
     collection = db.shoprite
     #fetch data from Mongodb database
-
     return pd.DataFrame(list(collection.find()))
 
 def clean_df(df):
     #cleaning the data
-    df.set_index("title",inplace=True)
+    
     df["date"] = pd.to_datetime(df["date"])
+
     df["price"] = df["price"].apply(lambda x: float( (x.strip()).replace(",","").replace("R","") ) )
+    df["date_only"] = df["date"].dt.date
+
+    df = df.drop_duplicates(subset = ["title",'date_only'], keep = 'last')
+    df.drop(["date_only","_id"], axis=1,inplace=True)
 
     # store df
     # df.to_csv("dashapp/ecommerce/data_files/clean_df.csv")
@@ -47,12 +51,14 @@ def clean_df(df):
     path = "sqlite:///" + os.path.join(basedir,"data.sqlite")
     cnx = create_engine(path).connect() 
 
-    df.drop("_id",inplace=True,axis=1)
+    df.set_index("title",inplace=True)
+    # df.drop("_id",inplace=True,axis=1)
     df.to_sql("clean_df",cnx,if_exists="replace")
 
     return df
 
 def process_data(df):
+   
     #classify data into cheap, expensive , non food items and the no change classes
     for item_name in df.index.unique():
         count = df[df.index == item_name]["price"].count()
@@ -112,11 +118,7 @@ def further_processing(df):
 
         y = (current_price-average_price)*100/average_price
 
-        print("\n\n\n\n")
-        print(y)
-        print(current_price)
-        print(average_price)
-        print("\n\n\n\n")
+       
 
         y_cheap_values.append(y)
 
@@ -144,11 +146,6 @@ def further_processing(df):
         # y = (current_price-average_price)*100/average_price
         y = (current_price-average_price)*100/average_price
 
-        print("\n\n\n\n")
-        print(y)
-        print(current_price)
-        print(average_price)
-        print("\n\n\n\n")
 
         y_expensive_values.append(y)
 
@@ -194,15 +191,6 @@ def store_data():
     db.session.add_all( [ NonFoodProducts(i) for i in no_change])
     db.session.commit()
 
-    # print(NonFoodProducts.query.all())
-    # print(CheapProducts.query.all())
-    # print(NoChangeProducts.query.all())
-    # # print((NoChangeProducts.query.all())))
-    # print(type(NoChangeProducts.query.all()[0].name))
-
-    # print(ExpensiveProducts.query.all())
-
-    # print(CleanDf.query.all())
 
 
 def retrieve_and_clean_data():

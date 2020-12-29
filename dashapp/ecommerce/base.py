@@ -20,17 +20,6 @@ db.create_all()
 # df = pd.read_csv("dashapp/ecommerce/data_files/clean_df.csv")
 df = pd.read_sql("clean_df",cnx)
  
-# is very inefficient
-# data_dict = {
-#     "title":[i.title for i in CleanDf.query.all()],
-#     "price":[i.price for i in CleanDf.query.all()],
-#     "image_url":[i.image_url for i in CleanDf.query.all()],
-#     "date":[i.date for i in CleanDf.query.all()]
-# }
-
-# df = pd.DataFrame(data_dict)
-
-
 df.set_index("title",inplace=True)
 df["date"] = pd.to_datetime(df["date"])
 df["price"] = df["price"].apply(lambda x: float(x) )
@@ -135,16 +124,6 @@ mini_div_bg_style = {"backgroundColor":secondary_color,
 cheap_product_list = []
 
 
-# for product_name in cheap_products:
-    
-#     min_value = df[df.index==product_name]["price"].min()
-#     max_value = df[df.index==product_name]["price"].max()
-#     current_price =  df[df.index==product_name]["price"][-1]
-    
-#     average_price = (min_value+max_value)/2
-    
-#     y = (current_price-average_price)*100/average_price
-#     y_cheap_values.append(y)
     
 cheap_product_list.append(go.Bar(
                                  x=cheap_products,
@@ -156,18 +135,6 @@ cheap_product_list.append(go.Bar(
 # process expensive products 
 expensive_product_list = []
 
-
-# for product_name in expensive_products:
-
-#     min_value = df[df.index==product_name]["price"].min()
-#     max_value = df[df.index==product_name]["price"].max()
-#     current_price =  df[df.index==product_name]["price"][-1]
-    
-#     average_price = (min_value+max_value)/2
-    
-#     y = (current_price-average_price)*100/average_price
-#     y_expensive_values.append(y)
-    
 
 
 expensive_product_list.append(go.Bar(
@@ -230,7 +197,7 @@ layout = html.Div(
                 html.Div(
                     [
                         
-                    # row 1   ##############################################################################################    
+                    # row 1   ##########################################################################################################    
                         html.Div([ # main hero area row 1 (graph + dropdown + productlist) 
                             
                            
@@ -253,7 +220,7 @@ layout = html.Div(
                             [   dcc.Dropdown(id="dropdown",
                                 options=[{'label': i, 'value': i}  for i in combined_list],
                                 multi=True,
-                               value=df.index[0]
+                               value=      df.index[0] if len(df) > 0 else None
                               )
                                 
                             ],style=dropdown_style
@@ -301,7 +268,7 @@ layout = html.Div(
                         ],style= main_hero_style_row1),
                         
                         
-                        # row 2 ############################################################################################
+                        # row 2 ########################################################################################################
                 html.Div([ # main hero area row 2 (3 min divs) 
                             
                         
@@ -395,7 +362,7 @@ layout = html.Div(
                          ]),
                         
                       
-                        #row 3 ############################################################################################
+                        #row 3 ########################################################################################################
                         
                         html.Div([
                             
