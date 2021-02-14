@@ -6,8 +6,10 @@ from dashapp.ecommerce.models  import *
 import dashapp
 from sqlalchemy import create_engine
 
-db_username = os.environ.get("USER")
-db_password = os.environ.get("PASSWORD")
+# db_username = os.environ.get("USER")
+# db_password = os.environ.get("PASSWORD")
+db_username = "takuonline"
+db_password = "tablmak11"
 #process data into different classes
 
 cheap_products = []
@@ -37,8 +39,9 @@ def clean_df(df):
     #cleaning the data
     
     df["date"] = pd.to_datetime(df["date"])
-
-    df["price"] = df["price"].apply(lambda x: float( (x.strip()).replace(",","").replace("R","") ) )
+    df["price"] = df["price"].apply(
+        lambda x: float((x.strip()).replace(",", "").replace("R", "").split()[-1])
+    )
     df["date_only"] = df["date"].dt.date
 
     df = df.drop_duplicates(subset = ["title",'date_only'], keep = 'last')
