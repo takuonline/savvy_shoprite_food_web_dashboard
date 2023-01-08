@@ -4,4 +4,6 @@ from flask import current_app as app
 @app.route("/")
 def home():
     return  "<h1> Hello world</h1>"
+    # TODO: add route info 
+
    

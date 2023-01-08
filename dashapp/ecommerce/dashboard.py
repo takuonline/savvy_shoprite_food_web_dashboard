@@ -19,8 +19,8 @@ def create_dashboard(server):
 
 def create_callbacks(dash_app):
 
-
-    @dash_app.callback(Output("main_graph","figure"),
+    @dash_app.callback(
+        Output("main_graph","figure"),
                 [Input("dropdown","value")])
     def select_product_graph(product_list):
         

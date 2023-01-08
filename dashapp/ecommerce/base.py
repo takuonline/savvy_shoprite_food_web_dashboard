@@ -11,19 +11,18 @@ import os
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 path = "sqlite:///"+os.path.join(basedir,"../data.sqlite")
-cnx = create_engine(path).connect() 
-
+cnx = create_engine(path).connect()
 
 db.create_all()
 
-# fetch cleaned df 
+# fetch cleaned df
 # df = pd.read_csv("dashapp/ecommerce/data_files/clean_df.csv")
 df = pd.read_sql("clean_df",cnx)
- 
+
 df.set_index("title",inplace=True)
 df["date"] = pd.to_datetime(df["date"])
 df["price"] = df["price"].apply(lambda x: float(x) )
-   
+
 
 # fetch stored processed data
 cheap_products = []
@@ -62,12 +61,12 @@ secondary_color = "#db6ab5"
 main_div_bg_style = {
     "background": "linear-gradient(to bottom left, #6b0f1a, #b01268)",
     "width": "100%",
-    "height": "100%", 
+    "height": "100%",
     "color":"white",
     "fontFamily":"Montserrat, Helvetica"
 }
 
-#styles 
+#styles
 side_bar_style = {"backgroundColor":bg_color_dark,
                     "width":"20%",
                     "flex":"1 0 10%",
@@ -78,14 +77,14 @@ main_hero_style_row1 = {"display":"flex",
                     "flexWrap":"wrap",
                     "width":"100%",
                     "flex":"1 0 80%"
-    
+
 }
 
 main_hero_style = {"display":"flex",
                     "flexWrap":"wrap",
                     "width":"100%",
                     "flex":"1 0 80%"
-    
+
 }
 
 graph_and_dropdown_style = { "margin":"1.2rem",
@@ -101,14 +100,15 @@ dropdown_style = {"padding":"1rem",
                     "flexWrap":"wrap",
               }
 
- 
+
 product_image_style = { "flex":"3 1 20%",
                     "display":"inline-block",
                     "backgroundColor":bg_color_dark,
                     "padding":"2rem",
                     "marginTop":"1rem",
                     "marginRight":"1rem",
-                    "height":"68%"
+                    # "height":"68%",
+                     "height":"80%"
 }
 
 mini_div_bg_style = {"backgroundColor":secondary_color,
@@ -121,18 +121,18 @@ mini_div_bg_style = {"backgroundColor":secondary_color,
 
 
 # process cheap products
-cheap_product_list = []
+cheap_product_list = [   ]
 
 
-    
+
 cheap_product_list.append(go.Bar(
                                  x=cheap_products,
                                  y=y_cheap_values,
                                 #  name=product_name,
                                 ))
 
-                            
-# process expensive products 
+
+# process expensive products
 expensive_product_list = []
 
 
@@ -150,7 +150,7 @@ combined_list = expensive_products + cheap_products + no_change
 
 layout = html.Div(
     [
-       
+
         html.Div( #empty div
             style={
                 "paddingTop":"1rem"
@@ -161,26 +161,26 @@ layout = html.Div(
         html.H1(f"Shoprite Analysis ({len(set(combined_list))} products)",
                 style = {
                     "marginLeft":"21rem",
-                    "padding":".5rem", 
+                    "padding":".5rem",
                     "fontSize":"1.3rem",
                     "margin-bottom": 0
                 }
-                
-               
+
+
                ),  style = {
                     "backgroundColor":"rgba(0,0,0,.5)",
                 }
-              
+
         ),
-        
-        
+
+
         html.Div(
             [
                 #side navbar
                 html.Div(
-                    
+
                         [
-                            
+
                         html.H1("Shoprite",className="side-navbar-text__header", style={"marginLeft":"1rem",
                                                                                          "margin-top":"3rem"}),
 
@@ -196,44 +196,45 @@ layout = html.Div(
                 #main hero area
                 html.Div(
                     [
-                        
-                    # row 1   ##########################################################################################################    
-                        html.Div([ # main hero area row 1 (graph + dropdown + productlist) 
-                            
-                           
+
+                    # row 1   ##########################################################################################################
+                        html.Div([ # main hero area row 1 (graph + dropdown + productlist)
+
+
                         #graph and dropdown  div
                         html.Div(
-                        [ 
-                            
-                            
+                        [
+
+
                             #graph only div
                             html.Div([
                                    #graph
-                                    dcc.Graph(id="main_graph",), 
+                                    dcc.Graph(id="main_graph",),
                             ],
                             style={#graph div styling
-                                
+
                             }),
- 
-                            
+
+
                             html.Div( #dropdown below the graph div
-                            [   dcc.Dropdown(id="dropdown",
+                            [   dcc.Dropdown(
+                                id="dropdown",
                                 options=[{'label': i, 'value': i}  for i in combined_list],
                                 multi=True,
                                value=      df.index[0] if len(df) > 0 else None
                               )
-                                
+
                             ],style=dropdown_style
                             )
-                            
+
                         ],style=graph_and_dropdown_style
                         ),
-                        
+
                         #product image
                         html.Div(
                         [
-                            
-                            
+
+
                             html.Div(# mini image div bg
                                 [
                                     html.H3("Product Image",className="product-image__header",style={"color":"white",
@@ -241,40 +242,40 @@ layout = html.Div(
                                                            "fontSize":"1.3rem",
                                                            "margin": 0,
                                                            "textAlign": "center"
-                                                           
+
                                                           }),
-                                    
+
                                     html.Img(
                                     id="mini_divs_image",
                                     className="product-image__image",
                                     style={
                                         "width":"100%"
-                                    }       
+                                    }
                                             )
-                                    
+
                                 ]
                                 ,
 
                             ),
-                            
-                             
+
+
                         ],className="product-image",
                             style=product_image_style
-                        
+
                         ),
-                         
-                            
-                            
+
+
+
                         ],style= main_hero_style_row1),
-                        
-                        
+
+
                         # row 2 ########################################################################################################
-                html.Div([ # main hero area row 2 (3 min divs) 
-                            
-                        
+                html.Div([ # main hero area row 2 (3 min divs)
+
+
                         html.Div(# outer div  with 3 min div - image,price change
                         [
-                            
+
                              html.Div(# minimum price div bg
                                 [
                                     html.H3("Minimum Price",style={"color":"#911145",
@@ -282,23 +283,23 @@ layout = html.Div(
                                                            "fontSize":"1rem",
                                                            "margin": 0,
                                                            "textAlign": "center",
-                                                               
+
                                                           }),
-                                    
+
                                     html.P(id="mini_divs_min_price",style={"color":"white",
                                                        "fontWeight":900,
                                                         "fontSize":"1.5rem",
                                                          "textAlign": "center",
                                                         "margin":".7rem"
-                                                        
+
                                                        })
-                                    
+
                                 ]
                                 ,
                                 style=mini_div_bg_style
                             ),
-                            
-                           
+
+
                              html.Div(# mini price div bg
                                 [
                                     html.H3("Maximum Price",style={"color":"#911145",
@@ -306,23 +307,23 @@ layout = html.Div(
                                                            "fontSize":"1rem",
                                                            "margin": 0,
                                                            "textAlign": "center",
-                                                               
+
                                                           }),
-                                    
+
                                     html.P(id="mini_divs_max_price",style={"color":"white",
                                                        "fontWeight":900,
                                                         "fontSize":"1.5rem",
                                                          "textAlign": "center",
                                                         "margin":".7rem"
-                                                        
+
                                                        })
-                                    
+
                                 ]
                                 ,
                                 style=mini_div_bg_style
                             ),
-                            
-                            
+
+
                              html.Div(# mini change div bg
                                 [
                                     html.H3("Average Price",style={"color":"#911145",
@@ -330,42 +331,42 @@ layout = html.Div(
                                                            "fontSize":"1rem",
                                                            "margin": 0,
                                                            "textAlign": "center",
-                                                          
+
                                                           }
                                            ),
-                                    
+
                                     html.P(id="mini_divs_average_price",style={
                                                         "color":"white",
                                                         "fontWeight":900,
                                                         "fontSize":"1.5rem",
                                                         "textAlign": "center",
-                                                        "margin":".7rem" 
+                                                        "margin":".7rem"
                                                                                }
                                           )
-                                    
+
                                 ]
                                 ,
                                 style=mini_div_bg_style
                             ),
-                            
+
                          ],style={ #out div to 3 mini divs
                             "display":"flex",
                             "justifyContent":"space-around",
                             "alignItems":"center",
                             "flexWrap":"wrap",
                             "marginLeft":"1rem"
-                            
+
                         }
-                        
+
                         )
-                        
+
                          ]),
-                        
-                      
+
+
                         #row 3 ########################################################################################################
-                        
+
                         html.Div([
-                            
+
                             #row 3 bg
                             html.Div([
                                 html.Div(# header
@@ -376,17 +377,16 @@ layout = html.Div(
                                     style={
                                         "backgroundColor":secondary_color,
                                         "padding":".7rem",
-                                       
+
                                     }
                                 ),
-                                
-                                
+
+
                                 dcc.Graph(
                                     id = "mini-bar-1",
                                 figure={
-
                                     "data":cheap_product_list,
-                                      "layout": go.Layout(title="Price decrease",
+                                    "layout": go.Layout(title="Price decrease",
                                                         plot_bgcolor="rgba(0,0,0,0)",
                                                         paper_bgcolor="rgba(0,0,0,0)",
                                                         font={"color":"white",},
@@ -405,8 +405,8 @@ layout = html.Div(
                                 "flex":" 1 0 45%",
                                 "margin":"1rem",
                             }),
-                            
-                            
+
+
                             html.Div([
                                 html.Div(# header
                                     html.P(f"Worst buys ({len(expensive_products)} products)",
@@ -416,10 +416,10 @@ layout = html.Div(
                                     style={
                                         "backgroundColor":secondary_color,
                                         "padding":".7rem",
-                                        
+
                                     }
                                 ),
-                                
+
                                  dcc.Graph(
                                     id = "mini-bar-2",
                                 figure={
@@ -438,19 +438,19 @@ layout = html.Div(
                                                                 }
 
                                                         )
-                               
+
                                         }
                                             )
-                                
-                                
+
+
                             ],style={
                                 "flex":" 1 0 45%",
                                 "margin":"1rem",
                                 "marginLeft":0
                             }),
-                            
-                         
-                            
+
+
+
                         ],style = {# best and worst rows
                             "display":"flex",
                             "width": "100%",
@@ -458,7 +458,7 @@ layout = html.Div(
                             "padding":"1rem",
                             "margin":"1rem",
                             "marginTop":0
-                           
+
                                 }
                         ),
 
@@ -483,15 +483,15 @@ layout = html.Div(
                                "marginLeft":"1rem"
                            }
                        )
-                        
-                        
+
+
                         # row 4 ############################################################################################
-                        
-                        
+
+
                         # html.Div(
                         #     [
                         #         dcc.Graph(
-                                
+
                         #         figure = {
                         #             "data":bubble_product_list,
                         #             # "data":[go.Scatter(x=[1,2,3,4],y=[3,5,8,9],mode="markers",marker={"size":[20,50,130,200]})],
@@ -502,7 +502,7 @@ layout = html.Div(
                         #                                 grid={"columns":1,},
                         #                                 hovermode="closest"
                         #                                 )
-                                
+
                         #         }
                         #         )
                         #     ],style={"backgroundColor":"#dc47aa",
@@ -512,14 +512,14 @@ layout = html.Div(
                 style=main_hero_style
                 )
 
-    
+
             ],
         style={ #div containing the side bar and main hero area
                 "display":"flex",
 
                 }
             )
-          
+
 ],style=main_div_bg_style
 )
 

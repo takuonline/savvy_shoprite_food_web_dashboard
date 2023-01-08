@@ -3,16 +3,7 @@
 from dashapp import db
 #####################################
 
-# temp = []
-
-# def set_db(database):
-
-#     # global db
-
-#     temp.append(database)
-    
-
-# db=temp[0]
+ 
 
 class CheapProducts(db.Model):
 
